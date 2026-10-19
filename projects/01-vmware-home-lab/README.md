@@ -18,16 +18,45 @@ Documentar o ambiente VMware que suporta este portfólio: capacidade, segmentaç
 
 ```mermaid
 flowchart TB
-  Admin[Administrador] -->|Console de gestão| VMware[VMware Host / Hypervisor\nTBD: produto e versão]
-  VMware --> DS[(Datastore\nTBD)]
-  VMware --> Net[Virtual Switch / Port Groups\nTBD]
-  Net --> Mgmt[Management Network\nTBD]
-  Net --> Svc[Service Network\nTBD]
-  VMware --> VM1[Core services VM\nTBD]
-  VMware --> VM2[Monitoring VM\nTBD]
-  VMware --> VM3[Backup VM\nTBD]
-  VM2 -. metrics .-> VMware
-  VM3 -. protected workloads .-> VM1
+  ADMIN["Administrador"]
+    PHYS["Host físico<br/>VMware ESXi 8<br/>64 GB RAM"]
+    ADMIN -->|HTTPS / vSphere Client| VC
+
+    subgraph NESTED["Laboratório de virtualização"]
+        PHYS
+        N1["ESXi-N1<br/>Hipervisor aninhado"]
+        N2["ESXi-N2<br/>Hipervisor aninhado"]
+        VC["vCenter Server<br/>Gestão centralizada"]
+        AD["AD / DNS / DHCP"]
+        APP["Máquinas virtuais<br/>de teste"]
+        VEEAM["Veeam Server"]
+        MON["Zabbix / ferramentas"]
+        PHYS --> N1
+        PHYS --> N2
+        N1 --> VC
+        N1 --> AD
+        N1 --> APP
+        N2 --> VEEAM
+        N2 --> MON
+    end
+
+    subgraph NETWORKS["Redes lógicas"]
+        MGMT["VLAN 10 — Management<br/>172.20.10.0/24"]
+        STORAGE["VLAN 20 — Storage<br/>172.20.20.0/24"]
+        SERVERS["VLAN 30 — Servers<br/>172.20.30.0/24"]
+        DMZ["VLAN 40 — DMZ<br/>Subnet a definir"]
+    end
+
+    N1 -. "Gestão" .-> MGMT
+    N2 -. "Gestão" .-> MGMT
+    AD -. "Serviços" .-> SERVERS
+    APP -. "Serviços" .-> SERVERS
+    VEEAM -. "Backup" .-> SERVERS
+    PHYS -. "Tráfego de storage" .-> STORAGE
+    APP -. "Serviços expostos controlados" .-> DMZ
+
+    NAS["TrueNAS / Storage<br/>preferencialmente fora<br/>dos ESXi aninhados"]
+    NAS --- STORAGE
 ```
 
 ### Implementação e validação
