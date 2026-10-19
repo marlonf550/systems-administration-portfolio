@@ -1,0 +1,32 @@
+# Secrets and local settings
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.p12
+*.ppk
+id_rsa
+id_ed25519
+secrets/
+vault-password*
+
+# Virtualization artifacts
+*.vmem
+*.vmsn
+*.vmss
+*.vmdk
+*.vhd
+*.vhdx
+*.ova
+*.ovf
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+logs/
+reports/private/
+
